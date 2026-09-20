@@ -245,20 +245,18 @@
   }
 
   .hero-flow-line {
-    position: absolute;
-    left: 50%;
-    bottom: 6%;
     width: 1px;
-    height: 34%;
+    height: 70px;
+    margin-top: 28px;
     background: var(--ink);
     opacity: 0.16;
-    transform: translateX(-50%) scaleY(0);
-    transform-origin: bottom;
+    transform: scaleY(0);
+    transform-origin: top;
     pointer-events: none;
     display: none;
-    animation: heroLineGrow 1.2s cubic-bezier(0.22,1,0.36,1) 1.1s forwards;
+    animation: heroLineGrow 1s cubic-bezier(0.22,1,0.36,1) 1.1s forwards;
   }
-  @keyframes heroLineGrow { to { transform: translateX(-50%) scaleY(1); } }
+  @keyframes heroLineGrow { to { transform: scaleY(1); } }
   @media (min-width: 900px) { .hero-flow-line { display: block; } }
 
   .hero-collage {
@@ -323,6 +321,7 @@
     letter-spacing: 0.5px;
     color: var(--ink);
     text-transform: uppercase;
+    text-align: center;
     margin: 0;
   }
   .hero-phrase {
@@ -688,8 +687,6 @@
 
   <!-- HERO -->
   <section class="hero" id="inicio">
-    <div class="hero-flow-line" aria-hidden="true"></div>
-
     <div class="hero-collage left">
       <div class="hero-photo a">[ Novia con velo ]</div>
       <div class="hero-photo b">[ Detalle floral ]</div>
@@ -705,6 +702,9 @@
       <p class="hero-phrase">Va en serio: nos casamos</p>
       <p class="hero-tagline">Valladolid · 5 junio 2027</p>
       <a href="#rsvp" class="hero-cta-btn btn-outline"><span>Confirmar asistencia</span></a>
+      <!-- Esta línea va DESPUÉS del botón, en el flujo normal: así nunca
+           puede solaparse con el CTA, esté donde esté en cada pantalla -->
+      <div class="hero-flow-line" aria-hidden="true"></div>
     </div>
 
     <div class="hero-collage right">
