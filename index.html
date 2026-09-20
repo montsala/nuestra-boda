@@ -1,0 +1,1149 @@
+<!doctype html>
+<!--
+  ============================================================
+  WEB DE BODA — Joshua & Marta — 5 de junio de 2027, Valladolid
+  ============================================================
+  Archivo único y autocontenido (HTML + CSS + JS) para GitHub Pages.
+  No necesita build ni dependencias, solo súbelo tal cual junto a logo.svg.
+
+  ESTRUCTURA DE ESTE ARCHIVO:
+  1. <head>      → metadatos, fuentes de Google, y TODO el CSS dentro de <style>
+  2. <body>      → header fijo, menú overlay, y cada sección de la web en orden
+  3. <script>    → varios bloques de JS al final, cada uno con una función:
+                     - header al hacer scroll + menú hamburguesa + animaciones "reveal"
+                     - slider de la galería (scroll horizontal + contador + lightbox)
+                     - cuenta atrás en directo hasta la boda
+
+  CÓMO EDITAR CONTENIDO:
+  - Los textos están escritos directamente en el HTML de cada <section>.
+  - Los datos que faltan por rellenar están marcados entre [corchetes].
+  - Los colores y tipografías se controlan desde las variables CSS en :root
+    (ver más abajo) — cambia un color ahí y se actualiza en toda la web.
+  ============================================================
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Joshua &amp; Marta — 5 de junio de 2027, Valladolid</title>
+
+<!--
+  Estas etiquetas son las que leen WhatsApp, Telegram, Instagram, X, etc.
+  para generar la tarjeta de vista previa cuando alguien pega el enlace.
+  og-image.png tiene que estar subida en la MISMA carpeta que index.html
+  para que la URL de abajo funcione (súbela junto a index.html y logo.svg).
+-->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Joshua & Marta — Nos casamos">
+<meta property="og:description" content="5 de junio de 2027 · Valladolid. Aquí tenéis toda la información de nuestra boda.">
+<meta property="og:image" content="https://montsala.github.io/nuestra-boda/og-image.png">
+<meta property="og:url" content="https://montsala.github.io/nuestra-boda/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Joshua & Marta — Nos casamos">
+<meta name="twitter:description" content="5 de junio de 2027 · Valladolid. Aquí tenéis toda la información de nuestra boda.">
+<meta name="twitter:image" content="https://montsala.github.io/nuestra-boda/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Work+Sans:wght@300;400;500&family=Caveat:wght@500;600&display=swap">
+<style>
+  /* Paleta de colores de toda la web: cambia aquí y se actualiza en todos lados */
+  :root {
+    --ivory: #F7F3EC;      /* fondo claro principal */
+    --white: #FFFFFF;      /* fondo de secciones "white" (alternadas) */
+    --ink: #2B2A26;        /* color de texto principal (negro suave) */
+    --muted: #8A8676;      /* texto secundario / etiquetas */
+    --line: #E4DECD;       /* líneas finas / divisores */
+    --vine: #4B5A3E;       /* verde viñedo (acento principal) */
+    --terracotta: #B3654A; /* terracota (acento secundario) */
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; } /* scroll animado al pulsar enlaces del menú */
+  section[id] { scroll-margin-top: 76px; }
+  body {
+    margin: 0;
+    background: var(--ivory);
+    color: var(--ink);
+    font-family: 'Work Sans', sans-serif;
+  }
+  .serif { font-family: 'Cormorant Garamond', serif; }
+  .section {
+    width: 100%;
+    padding: 56px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+    text-align: center;
+  }
+  .section.white { background: var(--white); }
+  .section-inner {
+    max-width: 480px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--terracotta);
+  }
+  h1, h2 { margin: 0; font-weight: 500; }
+  h1 { font-size: 54px; }
+  h2 { font-size: 30px; }
+  p { margin: 0; font-size: 16px; line-height: 1.7; color: #514F47; }
+  .btn-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid currentColor;
+    background: transparent;
+    color: inherit;
+    text-decoration: none;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 13px 30px;
+    transition: letter-spacing 0.3s ease, opacity 0.3s ease;
+  }
+  .btn-outline:hover { letter-spacing: 2.6px; }
+  .btn-arrow-x { display: inline-block; transition: transform 0.3s ease; }
+  .btn-outline:hover .btn-arrow-x { transform: translateX(3px); }
+
+  /* Detalle botánico reutilizable */
+  .sprig { color: var(--terracotta); opacity: 0.55; }
+  .sprig.on-dark { color: var(--ivory); opacity: 0.5; }
+
+  /* HEADER */
+  .site-header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 22px;
+    background: transparent;
+    transition: background 0.35s ease, box-shadow 0.35s ease, padding 0.35s ease;
+  }
+  .site-header.scrolled {
+    background: var(--ivory);
+    box-shadow: 0 2px 14px rgba(0,0,0,0.06);
+    padding: 10px 22px;
+  }
+  .site-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    color: var(--ink);
+    text-decoration: none;
+    letter-spacing: 1px;
+  }
+
+  .nav-left, .nav-right {
+    display: none;
+    align-items: center;
+    gap: 18px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex: 1;
+  }
+  .nav-right { justify-content: flex-end; }
+  .nav-left a, .nav-right a {
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    transition: opacity 0.3s ease;
+    opacity: 0.75;
+  }
+  .nav-left a:hover, .nav-right a:hover { opacity: 1; }
+  .nav-cta {
+    display: inline-flex;
+    padding: 8px 16px;
+    border: 1px solid var(--ink);
+    color: var(--ink) !important;
+    opacity: 1 !important;
+    font-size: 10px !important;
+    letter-spacing: 1.5px !important;
+    text-transform: uppercase;
+    transition: letter-spacing 0.3s ease;
+  }
+  .nav-cta:hover { letter-spacing: 2px !important; }
+
+  .hamburger {
+    width: 30px; height: 22px;
+    position: relative;
+    background: none; border: none; cursor: pointer; padding: 0;
+  }
+  .hamburger span {
+    position: absolute; left: 0; width: 100%; height: 1.5px;
+    background: var(--ink);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  .hamburger span:nth-child(1) { top: 2px; }
+  .hamburger span:nth-child(2) { top: 10px; }
+  .hamburger span:nth-child(3) { top: 18px; }
+  body.menu-open .hamburger span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+  body.menu-open .hamburger span:nth-child(2) { opacity: 0; }
+  body.menu-open .hamburger span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+  @media (min-width: 900px) {
+    .nav-left, .nav-right { display: flex; }
+    .hamburger { display: none; }
+  }
+
+  .site-menu {
+    position: fixed; inset: 0; z-index: 90;
+    background: var(--ivory);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+  body.menu-open .site-menu { opacity: 1; pointer-events: auto; }
+  .site-menu-link {
+    display: flex; align-items: baseline; gap: 12px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    color: var(--ink);
+    text-decoration: none;
+    transition: transform 0.25s ease, color 0.25s ease;
+  }
+  .site-menu-link:hover { transform: translateX(6px); color: var(--terracotta); }
+  .site-menu-num { font-size: 13px; font-style: italic; color: var(--terracotta); }
+
+  /* REVEAL ON SCROLL */
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity 0.8s ease, transform 0.8s ease; }
+  .reveal.is-visible { opacity: 1; transform: translateY(0); }
+
+  /* NUMERACION EDITORIAL */
+  .day-num { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 18px; color: var(--terracotta); line-height: 1; }
+
+  /* HERO EDITORIAL */
+  .hero {
+    background: #F7F6F2;
+    color: var(--ink);
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 96px 20px 56px;
+    justify-content: center;
+    min-height: auto;
+  }
+  @media (min-width: 900px) {
+    .hero {
+      min-height: clamp(480px, 50vw, 620px);
+      padding: 40px 20px;
+    }
+  }
+
+  .hero-flow-line {
+    width: 1px;
+    height: 70px;
+    margin-top: 28px;
+    background: var(--ink);
+    opacity: 0.16;
+    transform: scaleY(0);
+    transform-origin: top;
+    pointer-events: none;
+    display: none;
+    animation: heroLineGrow 1s cubic-bezier(0.22,1,0.36,1) 1.1s forwards;
+  }
+  @keyframes heroLineGrow { to { transform: scaleY(1); } }
+  @media (min-width: 900px) { .hero-flow-line { display: block; } }
+
+  .hero-collage {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 300px;
+    display: none;
+    pointer-events: none;
+  }
+  .hero-collage.left { left: -40px; }
+  .hero-collage.right { right: -40px; }
+  @media (min-width: 900px) { .hero-collage { display: block; } }
+
+  .hero-photo {
+    position: absolute;
+    border: 1px solid rgba(43,42,38,0.12);
+    background: #ECE8E0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    overflow: hidden;
+    filter: grayscale(0.4) contrast(0.95);
+    opacity: 0;
+    transform: translateY(14px);
+    animation: heroFadeSlide 1.1s cubic-bezier(0.22,1,0.36,1) forwards;
+    transition: transform 0.6s ease;
+  }
+  .hero-photo:hover { transform: scale(1.02); }
+  .hero-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .hero-collage.left .hero-photo.a { width: 210px; height: 260px; top: 30px; left: 0; animation-delay: 0.1s; }
+  .hero-collage.left .hero-photo.b { width: 135px; height: 170px; top: 210px; left: 130px; animation-delay: 0.28s; }
+  .hero-collage.right .hero-photo.a { width: 190px; height: 285px; top: 10px; right: 20px; animation-delay: 0.15s; }
+  .hero-collage.right .hero-photo.b { width: 155px; height: 185px; top: 235px; right: 90px; animation-delay: 0.32s; }
+
+  @keyframes heroFadeSlide {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-center {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    max-width: 420px;
+    opacity: 0;
+    transform: translateY(14px);
+    animation: heroFadeSlide 1.1s cubic-bezier(0.22,1,0.36,1) 0.4s forwards;
+  }
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    font-size: clamp(44px, 8vw, 78px);
+    line-height: 1.15;
+    letter-spacing: 0.5px;
+    color: var(--ink);
+    text-transform: uppercase;
+    text-align: center;
+    margin: 0;
+  }
+  .hero-phrase {
+    font-family: 'Work Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--terracotta);
+    margin: 22px 0 0;
+  }
+  .logo-mark { height: 64px; width: auto; display: block; }
+  .logo-mark.on-dark { filter: invert(1) brightness(1.5); }
+  .hero-tagline {
+    font-family: 'Work Sans', sans-serif;
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #5B5B56;
+    margin: 0;
+  }
+  .hero-cta-btn { margin-top: 8px; }
+
+
+  @media (max-width: 899px) {
+    .hero-mobile-photos {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+    .hero-mobile-photos .hero-photo {
+      position: static;
+      width: 78px;
+      height: 100px;
+    }
+  }
+  @media (min-width: 900px) { .hero-mobile-photos { display: none; } }
+  .divider { width: 44px; height: 1px; background: currentColor; opacity: 0.5; margin: 4px 0; }
+
+  .day-details {
+    display: flex;
+    width: 100%;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 26px 0;
+  }
+  .day-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 0 10px;
+  }
+  .day-divider { width: 1px; background: var(--line); }
+  .day-label { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+  .day-value { font-family: 'Cormorant Garamond', serif; font-size: 18px; line-height: 1.4; }
+
+  .hotel-list { display: flex; flex-direction: column; width: 100%; }
+  .hotel-row {
+    display: flex; justify-content: space-between; padding: 16px 4px;
+    border-bottom: 1px solid var(--line); font-size: 15px;
+  }
+  .hotel-row span.dist { font-size: 13px; color: var(--muted); }
+
+  .faq-row { padding: 16px 4px; border-bottom: 1px solid var(--line); text-align: left; width: 100%; }
+  .faq-q { font-size: 15px; font-weight: 500; }
+  .faq-a { font-size: 14px; color: var(--muted); margin-top: 4px; }
+
+  .map-box, .form-box, .photos-box {
+    width: 100%; max-width: 320px; min-height: 140px;
+    border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; color: var(--muted); text-align: center; padding: 12px;
+  }
+
+  .rsvp { background: var(--terracotta); color: #FBF5EF; }
+  .rsvp .eyebrow { color: #FBF5EF; opacity: 0.85; }
+
+  .countdown {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+  }
+  .countdown-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-width: 58px;
+  }
+  .countdown-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(36px, 7vw, 56px);
+    line-height: 1;
+    color: var(--ink);
+  }
+  .countdown-label {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .countdown-sep {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(22px, 4vw, 34px);
+    color: var(--terracotta);
+    align-self: center;
+    padding-bottom: 16px;
+  }
+
+  .section.green { background: var(--vine); color: var(--ivory); }
+  .section.green .eyebrow { color: var(--ivory); opacity: 0.85; }
+  .section.green p { color: rgba(247,243,236,0.85); }
+  .section.green .sprig { color: var(--ivory); opacity: 0.5; }
+
+  .gallery-slider-wrap {
+    position: relative;
+    width: 100%;
+    margin-top: 0;
+  }
+  .gallery-slider {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding: 12px 38vw;
+    scrollbar-width: none;
+  }
+  .gallery-slider::-webkit-scrollbar { display: none; }
+  .gallery-slide {
+    flex: 0 0 auto;
+    width: 160px;
+    aspect-ratio: 3 / 4;
+    scroll-snap-align: center;
+    border: 1px solid var(--line);
+    background: var(--ivory);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--muted);
+    overflow: hidden;
+    opacity: 0.65;
+    transition: width 0.35s ease, opacity 0.35s ease;
+  }
+  .gallery-slide.is-center {
+    width: 240px;
+    opacity: 1;
+  }
+  .gallery-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .gallery-nav {
+    display: none;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--white);
+    border: 1px solid var(--line);
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+  }
+  .gallery-nav.prev { left: 4px; }
+  .gallery-nav.next { right: 4px; }
+
+  @media (min-width: 700px) {
+    .gallery-slider { padding: 12px calc(50% - 120px); }
+    .gallery-slide { width: 190px; }
+    .gallery-slide.is-center { width: 300px; }
+    .gallery-nav { display: flex; }
+  }
+
+  .gallery-slider-wrap {
+    position: relative;
+    width: 100%;
+    margin-top: 0;
+  }
+  .gallery-slider {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding: 12px 38vw;
+    scrollbar-width: none;
+  }
+  .gallery-slider::-webkit-scrollbar { display: none; }
+  .gallery-slide {
+    flex: 0 0 auto;
+    width: 150px;
+    scroll-snap-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+  .gallery-slide-img {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    border: 1px solid var(--line);
+    background: var(--ivory);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--muted);
+    overflow: hidden;
+  }
+  .gallery-slide-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .gallery-slide-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--terracotta);
+  }
+  .gallery-nav {
+    display: none;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--white);
+    border: 1px solid var(--line);
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+  }
+  .gallery-nav.prev { left: 4px; }
+  .gallery-nav.next { right: 4px; }
+
+  @media (min-width: 700px) {
+    .gallery-slider { padding: 12px calc(50% - 95px); }
+    .gallery-slide { width: 190px; }
+    .gallery-nav { display: flex; }
+  }
+
+  .gallery-counter {
+    margin-top: 12px;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .lightbox {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(20,19,17,0.94);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.35s ease;
+  }
+  .lightbox.open { opacity: 1; pointer-events: auto; }
+  .lightbox-image {
+    width: min(86vw, 420px);
+    aspect-ratio: 3 / 4;
+    border: 1px solid rgba(247,243,236,0.15);
+    background: #322f2a;
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(247,243,236,0.6);
+    font-size: 12px;
+    overflow: hidden;
+  }
+  .lightbox-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .lightbox-close, .lightbox-nav-btn {
+    position: absolute;
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1px solid rgba(247,243,236,0.4);
+    color: var(--ivory);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.25s ease;
+  }
+  .lightbox-close:hover, .lightbox-nav-btn:hover { border-color: rgba(247,243,236,0.9); }
+  .lightbox-close { top: 20px; right: 20px; font-size: 16px; }
+  .lightbox-nav-btn.prev { left: 16px; top: 50%; transform: translateY(-50%); }
+  .lightbox-nav-btn.next { right: 16px; top: 50%; transform: translateY(-50%); }
+  .lightbox-counter {
+    position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%);
+    color: rgba(247,243,236,0.75);
+    font-size: 11px; letter-spacing: 1.5px;
+  }
+
+  .site-footer {
+    width: 100%;
+    padding: 32px 24px;
+    background: var(--vine);
+    color: var(--ivory);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .site-footer small {
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.75;
+    font-size: 11px;
+  }
+
+
+  @media (min-width: 700px) {
+    .section { padding: 88px 40px; }
+    h1 { font-size: 68px; }
+    h2 { font-size: 34px; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header" id="siteHeader">
+    <nav class="nav-left">
+      <a href="#inicio">Inicio</a>
+      <a href="#evento">El día</a>
+      <a href="#llegar">Cómo llegar</a>
+      <a href="#dresscode">Dress code</a>
+    </nav>
+    <a href="#inicio" class="site-logo">J &amp; M</a>
+    <nav class="nav-right">
+      <a href="#alojamiento">Alojamiento</a>
+      <a href="#fotos">Compartir fotos</a>
+      <a href="#galeria">Galería</a>
+      <a href="#rsvp" class="nav-cta">Confirmar asistencia</a>
+    </nav>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Abrir menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <!-- MENÚ -->
+  <nav class="site-menu" id="siteMenu">
+    <a href="#inicio" class="site-menu-link"><span class="site-menu-num">01</span>Inicio</a>
+    <a href="#evento" class="site-menu-link"><span class="site-menu-num">02</span>El gran día</a>
+    <a href="#llegar" class="site-menu-link"><span class="site-menu-num">03</span>Cómo llegar</a>
+    <a href="#alojamiento" class="site-menu-link"><span class="site-menu-num">04</span>Alojamiento</a>
+    <a href="#dresscode" class="site-menu-link"><span class="site-menu-num">05</span>Dress code</a>
+    <a href="#contador" class="site-menu-link"><span class="site-menu-num">06</span>Cuenta atrás</a>
+    <a href="#rsvp" class="site-menu-link"><span class="site-menu-num">07</span>RSVP</a>
+    <a href="#faq" class="site-menu-link"><span class="site-menu-num">08</span>FAQ</a>
+    <a href="#fotos" class="site-menu-link"><span class="site-menu-num">09</span>Compartir fotos</a>
+    <a href="#regalos" class="site-menu-link"><span class="site-menu-num">10</span>Regalos</a>
+    <a href="#historia" class="site-menu-link"><span class="site-menu-num">11</span>Nuestra historia</a>
+    <a href="#galeria" class="site-menu-link"><span class="site-menu-num">12</span>Galería</a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="inicio">
+    <div class="hero-collage left">
+      <div class="hero-photo a">[ Novia con velo ]</div>
+      <div class="hero-photo b">[ Detalle floral ]</div>
+    </div>
+
+    <div class="hero-center">
+      <div class="hero-mobile-photos">
+        <div class="hero-photo a">[ Novia ]</div>
+        <div class="hero-photo b">[ Pareja ]</div>
+      </div>
+      <img src="logo.svg" alt="Joshua & Marta" class="logo-mark">
+      <h1 class="hero-title">Joshua &amp; Marta</h1>
+      <p class="hero-phrase">Va en serio: nos casamos</p>
+      <p class="hero-tagline">Valladolid · 5 junio 2027</p>
+      <a href="#rsvp" class="hero-cta-btn btn-outline"><span>Confirmar asistencia</span></a>
+      <!-- Esta línea va DESPUÉS del botón, en el flujo normal: así nunca
+           puede solaparse con el CTA, esté donde esté en cada pantalla -->
+      <div class="hero-flow-line" aria-hidden="true"></div>
+    </div>
+
+    <div class="hero-collage right">
+      <div class="hero-photo a">[ Pareja en movimiento ]</div>
+      <div class="hero-photo b">[ Ramo de novia ]</div>
+    </div>
+  </section>
+
+  <!-- BIENVENIDA -->
+  <section class="section">
+    <div class="section-inner reveal">
+      <svg class="sprig" width="50" height="24" viewBox="0 0 60 30" fill="none" stroke="currentColor" stroke-width="1">
+        <path d="M2 15 H58" stroke-width="0.7"/>
+        <path d="M12 15 C16 8 22 6 26 10 C22 11 16 13 12 15Z"/>
+        <path d="M12 15 C16 22 22 24 26 20 C22 19 16 17 12 15Z"/>
+        <path d="M34 15 C38 8 44 6 48 10 C44 11 38 13 34 15Z"/>
+        <path d="M34 15 C38 22 44 24 48 20 C44 19 38 17 34 15Z"/>
+      </svg>
+      <div class="eyebrow">Bienvenidos</div>
+      <h2 class="serif">Un día para celebrar</h2>
+      <p>El sábado 5 de junio de 2027 nos casamos en Valladolid y queremos que estéis ahí para verlo, y para bailar hasta que os duelan los pies. Aquí tenéis todo lo que necesitáis saber sobre el gran día.</p>
+    </div>
+  </section>
+
+  <!-- EL GRAN DÍA -->
+  <section class="section white" id="evento">
+    <div class="section-inner reveal">
+      <svg class="sprig" width="56" height="26" viewBox="0 0 60 30" fill="none" stroke="currentColor" stroke-width="1">
+        <path d="M2 15 H58" stroke-width="0.7"/>
+        <path d="M12 15 C16 8 22 6 26 10 C22 11 16 13 12 15Z"/>
+        <path d="M12 15 C16 22 22 24 26 20 C22 19 16 17 12 15Z"/>
+        <path d="M34 15 C38 8 44 6 48 10 C44 11 38 13 34 15Z"/>
+        <path d="M34 15 C38 22 44 24 48 20 C44 19 38 17 34 15Z"/>
+      </svg>
+      <div class="eyebrow">El gran día</div>
+      <h2 class="serif">Horario</h2>
+      <div class="day-details">
+        <div class="day-col">
+          <div class="day-num">01</div>
+          <div class="day-label">Ceremonia</div>
+          <div class="day-value">[hora]<br>Sta. María de la Antigua</div>
+        </div>
+        <div class="day-divider"></div>
+        <div class="day-col">
+          <div class="day-num">02</div>
+          <div class="day-label">Celebración</div>
+          <div class="day-value">[hora]<br>Bodega Finca Tres Jotas</div>
+        </div>
+      </div>
+      <p style="font-size: 13px; color: var(--muted);">Puntualidad para la ceremonia — para lo demás, tenéis toda la noche.</p>
+    </div>
+  </section>
+
+  <!-- COMO LLEGAR -->
+  <section class="section" id="llegar">
+    <div class="section-inner reveal">
+      <div class="eyebrow">Cómo llegar</div>
+      <h2 class="serif">Valladolid os espera</h2>
+      <p>Si venís en coche, aquí tenéis la ubicación exacta de cada sitio. Si preferís no conducir, habrá autobús con salida desde [punto] a las [hora] y vuelta al terminar.</p>
+      <!--
+        Estos enlaces usan el buscador universal de Google Maps: en el móvil,
+        el propio sistema operativo suele abrir automáticamente la app de
+        navegación instalada (Google Maps / Apple Maps); en escritorio abre
+        Google Maps en una pestaña nueva. No hace falta ningún iframe.
+      -->
+      <div style="display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;">
+        <a class="btn-outline" href="https://maps.app.goo.gl/hRxYYXSExcFyMDPm7" target="_blank" rel="noopener">Ir a la iglesia <span class="btn-arrow-x">→</span></a>
+        <a class="btn-outline" href="https://maps.app.goo.gl/TEg7oQvMq3jEHquY8" target="_blank" rel="noopener">Ir a la finca <span class="btn-arrow-x">→</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- DONDE DORMIR -->
+  <section class="section white" id="alojamiento">
+    <div class="section-inner reveal">
+      <div class="eyebrow">Dónde dormir</div>
+      <h2 class="serif">Alojamiento</h2>
+      <div class="hotel-list">
+        <div class="hotel-row"><span>[Hotel 1]</span><span class="dist">a 5 min</span></div>
+        <div class="hotel-row"><span>[Hotel 2]</span><span class="dist">a 10 min</span></div>
+        <div class="hotel-row"><span>[Hostal / opción económica]</span><span class="dist">a 15 min</span></div>
+      </div>
+      <p style="font-size: 13px; color: var(--muted);">Reservad con tiempo, junio es temporada alta.</p>
+    </div>
+  </section>
+
+  <!-- DRESS CODE -->
+  <section class="section" id="dresscode">
+    <div class="section-inner reveal">
+      <svg class="sprig" width="50" height="24" viewBox="0 0 60 30" fill="none" stroke="currentColor" stroke-width="1">
+        <path d="M2 15 H58" stroke-width="0.7"/>
+        <path d="M12 15 C16 8 22 6 26 10 C22 11 16 13 12 15Z"/>
+        <path d="M12 15 C16 22 22 24 26 20 C22 19 16 17 12 15Z"/>
+        <path d="M34 15 C38 8 44 6 48 10 C44 11 38 13 34 15Z"/>
+        <path d="M34 15 C38 22 44 24 48 20 C44 19 38 17 34 15Z"/>
+      </svg>
+      <div class="eyebrow">Dress code</div>
+      <h2 class="serif">Elegante y cómodo</h2>
+      <p>Traje y corbata para ellos, vestido midi para ellas (ese largo intermedio, ni corto ni de gala). Dejad la ropa del día a día en el armario — nada de chándal, por favor.</p>
+      <p style="font-size: 13px; color: var(--muted);">Evitad el blanco, que ese color ya lo tenemos reservado.</p>
+    </div>
+  </section>
+
+  <!-- CUENTA ATRÁS -->
+  <section class="section white" id="contador">
+    <div class="section-inner reveal">
+      <svg class="sprig" width="50" height="24" viewBox="0 0 60 30" fill="none" stroke="currentColor" stroke-width="1">
+        <path d="M2 15 H58" stroke-width="0.7"/>
+        <path d="M12 15 C16 8 22 6 26 10 C22 11 16 13 12 15Z"/>
+        <path d="M12 15 C16 22 22 24 26 20 C22 19 16 17 12 15Z"/>
+        <path d="M34 15 C38 8 44 6 48 10 C44 11 38 13 34 15Z"/>
+        <path d="M34 15 C38 22 44 24 48 20 C44 19 38 17 34 15Z"/>
+      </svg>
+      <div class="eyebrow">Cuenta atrás</div>
+      <h2 class="serif">Ya casi</h2>
+      <div class="countdown" id="countdown">
+        <div class="countdown-unit"><span class="countdown-num" id="cdDays">00</span><span class="countdown-label">Días</span></div>
+        <div class="countdown-sep">·</div>
+        <div class="countdown-unit"><span class="countdown-num" id="cdHours">00</span><span class="countdown-label">Horas</span></div>
+        <div class="countdown-sep">·</div>
+        <div class="countdown-unit"><span class="countdown-num" id="cdMinutes">00</span><span class="countdown-label">Min</span></div>
+        <div class="countdown-sep">·</div>
+        <div class="countdown-unit"><span class="countdown-num" id="cdSeconds">00</span><span class="countdown-label">Seg</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RSVP -->
+  <section class="section rsvp" id="rsvp">
+    <div class="section-inner reveal">
+      <div class="eyebrow">RSVP</div>
+      <h2 class="serif">¿Venís?</h2>
+      <p style="color: #FBF5EF; opacity: 0.9;">Confirmadnos vuestra asistencia antes del [fecha límite], e indicad si tenéis alguna alergia o intolerancia.</p>
+      <!-- Sustituye este enlace por la URL de tu Google Form -->
+      <a class="btn-outline" href="https://docs.google.com/forms/d/e/1FAIpQLSfZ9DHO2rxQUmJ8l0ZF_Z9i8fYfameLc9CRM3YaGtjkU-Lo0Q/viewform" target="_blank" rel="noopener">Confirmar asistencia <span class="btn-arrow-x">→</span></a>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section white" id="faq">
+    <div class="section-inner reveal">
+      <div class="eyebrow">Antes de venir</div>
+      <h2 class="serif">Preguntas frecuentes</h2>
+      <div style="width: 100%;">
+        <div class="faq-row">
+          <div class="faq-q">¿Puedo traer a mis hijos?</div>
+          <div class="faq-a">¡Claro! Los peques también están invitados a la fiesta.</div>
+        </div>
+        <div class="faq-row">
+          <div class="faq-q">¿Hay parking?</div>
+          <div class="faq-a">Sí, en la Bodega Finca Tres Jotas hay aparcamiento para todos los invitados.</div>
+        </div>
+        <div class="faq-row">
+          <div class="faq-q">¿Y si llueve?</div>
+          <div class="faq-a">Tenemos plan B, no os preocupéis.</div>
+        </div>
+        <div class="faq-row">
+          <div class="faq-q">¿A quién pregunto si tengo dudas?</div>
+          <div class="faq-a">A [nombre], al [teléfono].</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOTOS DEL DÍA -->
+  <section class="section" id="fotos">
+    <div class="section-inner reveal">
+      <div class="eyebrow">Después de la boda</div>
+      <h2 class="serif">Comparte tus fotos</h2>
+      <p>¿Tienes fotos del día? Súbelas a nuestro álbum compartido para que no se nos escape ni un momento.</p>
+      <!-- Sustituye "#" por la URL del álbum compartido de Google Photos -->
+      <a class="btn-outline" href="https://photos.app.goo.gl/sr1Z3GyM6VQsMQa18" target="_blank" rel="noopener">Subir fotos <span class="btn-arrow-x">→</span></a>
+    </div>
+  </section>
+
+  <!-- REGALOS -->
+  <section class="section white" id="regalos">
+    <div class="section-inner reveal">
+      <div class="eyebrow">Regalos</div>
+      <h2 class="serif">Si insistís...</h2>
+      <p>Lo único que nos importa es que vengáis a celebrarlo con nosotros. Si aun así queréis hacernos un regalo, tenemos una mesa de luna de miel aquí:</p>
+      <a href="#" style="color: var(--vine); text-decoration: underline; font-size: 14px;">[enlace / IBAN]</a>
+    </div>
+  </section>
+
+  <!-- NUESTRA HISTORIA -->
+  <section class="section green" id="historia">
+    <div class="section-inner reveal">
+      <div class="eyebrow">Nuestra historia</div>
+      <h2 class="serif">Cómo empezó todo</h2>
+      <p class="serif" style="font-size: 19px; line-height: 1.6;">
+        Nuestra historia empezó con mal pie: una llegada tarde, más de media hora de espera y una regañada (merecidísima, todo hay que decirlo) antes de conocernos en persona. Desde entonces no hemos parado — viajes solos, viajes en pareja, y unas cuantas anécdotas de por medio, como aquella vez en Roma que alguien se bebió el último sorbo de Aperol sin avisar. Entre sabores nuevos, momentos de lo más románticos y maletas que no dejan de hacerse, hemos ido escribiendo esta historia juntos. Y el futuro empieza este 5 de junio.
+      </p>
+    </div>
+  </section>
+
+  <!-- GALERÍA -->
+  <section class="section white" id="galeria">
+    <div class="section-inner reveal" style="max-width: 900px;">
+      <div class="eyebrow">Momentos</div>
+      <h2 class="serif" style="font-style: italic; font-weight: 400;">Un vistazo al día</h2>
+      <div class="gallery-slider-wrap">
+        <div class="gallery-nav prev" onclick="document.getElementById('galleryTrack').scrollBy({left:-200,behavior:'smooth'})" role="button" aria-label="Foto anterior" tabindex="0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="1.6"><path d="M15 4 L7 12 L15 20"/></svg>
+        </div>
+        <div class="gallery-slider" id="galleryTrack">
+          <div class="gallery-slide">
+            <div class="gallery-slide-img"><!-- <img src="foto1.jpg" alt=""> -->[ Foto 1 ]</div>
+            <div class="gallery-slide-num">01</div>
+          </div>
+          <div class="gallery-slide">
+            <div class="gallery-slide-img"><!-- <img src="foto2.jpg" alt=""> -->[ Foto 2 ]</div>
+            <div class="gallery-slide-num">02</div>
+          </div>
+          <div class="gallery-slide">
+            <div class="gallery-slide-img"><!-- <img src="foto3.jpg" alt=""> -->[ Foto 3 ]</div>
+            <div class="gallery-slide-num">03</div>
+          </div>
+          <div class="gallery-slide">
+            <div class="gallery-slide-img"><!-- <img src="foto4.jpg" alt=""> -->[ Foto 4 ]</div>
+            <div class="gallery-slide-num">04</div>
+          </div>
+          <div class="gallery-slide">
+            <div class="gallery-slide-img"><!-- <img src="foto5.jpg" alt=""> -->[ Foto 5 ]</div>
+            <div class="gallery-slide-num">05</div>
+          </div>
+          <div class="gallery-slide">
+            <div class="gallery-slide-img"><!-- <img src="foto6.jpg" alt=""> -->[ Foto 6 ]</div>
+            <div class="gallery-slide-num">06</div>
+          </div>
+          <div class="gallery-slide">
+            <div class="gallery-slide-img"><!-- <img src="foto7.jpg" alt=""> -->[ Foto 7 ]</div>
+            <div class="gallery-slide-num">07</div>
+          </div>
+          <div class="gallery-slide">
+            <div class="gallery-slide-img"><!-- <img src="foto8.jpg" alt=""> -->[ Foto 8 ]</div>
+            <div class="gallery-slide-num">08</div>
+          </div>
+        </div>
+        <div class="gallery-nav next" onclick="document.getElementById('galleryTrack').scrollBy({left:200,behavior:'smooth'})" role="button" aria-label="Foto siguiente" tabindex="0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="1.6"><path d="M9 4 L17 12 L9 20"/></svg>
+        </div>
+      </div>
+      <div class="gallery-counter"><span id="galleryCounterNum">01</span> / 08</div>
+    </div>
+  </section>
+
+  <!-- LIGHTBOX DE LA GALERÍA -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightboxClose" aria-label="Cerrar">&times;</button>
+    <button class="lightbox-nav-btn prev" id="lightboxPrev" aria-label="Anterior">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 4 L7 12 L15 20"/></svg>
+    </button>
+    <div class="lightbox-image" id="lightboxImage"></div>
+    <button class="lightbox-nav-btn next" id="lightboxNext" aria-label="Siguiente">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 4 L17 12 L9 20"/></svg>
+    </button>
+    <div class="lightbox-counter" id="lightboxCounter">01 / 08</div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <img src="logo.svg" alt="Joshua & Marta" class="logo-mark on-dark" style="height: 48px; margin-bottom: 4px;">
+    <svg class="sprig on-dark" width="48" height="22" viewBox="0 0 60 30" fill="none" stroke="currentColor" stroke-width="1" style="margin-bottom: 4px;">
+      <path d="M2 15 H58" stroke-width="0.7"/>
+      <path d="M12 15 C16 8 22 6 26 10 C22 11 16 13 12 15Z"/>
+      <path d="M12 15 C16 22 22 24 26 20 C22 19 16 17 12 15Z"/>
+      <path d="M34 15 C38 8 44 6 48 10 C44 11 38 13 34 15Z"/>
+      <path d="M34 15 C38 22 44 24 48 20 C44 19 38 17 34 15Z"/>
+    </svg>
+    <div class="serif" style="font-size: 20px;">Joshua &amp; Marta</div>
+    <small>5 de junio de 2027 · Valladolid</small>
+  </footer>
+
+  <!-- ============ JS 1: header al hacer scroll + menú hamburguesa + animación "reveal" ============ -->
+  <script>
+    (function () {
+      var header = document.getElementById('siteHeader');
+      var hamburger = document.getElementById('hamburgerBtn');
+      var menu = document.getElementById('siteMenu');
+
+      // Añade fondo sólido al header cuando el usuario baja más de 40px
+      function onScroll() {
+        if (window.scrollY > 40) {
+          header.classList.add('scrolled');
+        } else {
+          header.classList.remove('scrolled');
+        }
+      }
+      window.addEventListener('scroll', onScroll);
+      onScroll();
+
+      // Abre/cierra el menú overlay al pulsar la hamburguesa
+      hamburger.addEventListener('click', function () {
+        var isOpen = document.body.classList.toggle('menu-open');
+        hamburger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      });
+      // Cierra el menú automáticamente al pulsar cualquier enlace de dentro
+      menu.querySelectorAll('a').forEach(function (link) {
+        link.addEventListener('click', function () {
+          document.body.classList.remove('menu-open');
+          hamburger.setAttribute('aria-expanded', 'false');
+        });
+      });
+
+      // Animación "reveal": todo elemento con class="reveal" aparece con un
+      // fade + desplazamiento hacia arriba en cuanto entra en pantalla al hacer scroll
+      var revealEls = document.querySelectorAll('.reveal');
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+          }
+        });
+      }, { threshold: 0.15 });
+      revealEls.forEach(function (el) { observer.observe(el); });
+    })();
+  </script>
+
+  <!-- ============ JS 2: slider de la galería (scroll + contador + lightbox) ============ -->
+  <script>
+    (function () {
+      var track = document.getElementById('galleryTrack');
+      if (!track) return;
+      var slides = Array.prototype.slice.call(track.querySelectorAll('.gallery-slide'));
+      var counterEl = document.getElementById('galleryCounterNum');
+      var ticking = false;
+
+      function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+      function nearestIndex() {
+        var trackRect = track.getBoundingClientRect();
+        var centerX = trackRect.left + trackRect.width / 2;
+        var closestIndex = 0;
+        var closestDist = Infinity;
+        slides.forEach(function (slide, i) {
+          var r = slide.getBoundingClientRect();
+          var slideCenter = r.left + r.width / 2;
+          var dist = Math.abs(slideCenter - centerX);
+          if (dist < closestDist) {
+            closestDist = dist;
+            closestIndex = i;
+          }
+        });
+        return closestIndex;
+      }
+
+      function updateCounter() {
+        if (counterEl) counterEl.textContent = pad(nearestIndex() + 1);
+        ticking = false;
+      }
+
+      function centerSlide(index) {
+        var slide = slides[index];
+        if (!slide) return;
+        var trackRect = track.getBoundingClientRect();
+        var slideRect = slide.getBoundingClientRect();
+        var offset = (slideRect.left + slideRect.width / 2) - (trackRect.left + trackRect.width / 2);
+        track.scrollLeft += offset;
+      }
+
+      track.addEventListener('scroll', function () {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(updateCounter);
+        }
+      });
+      window.addEventListener('resize', updateCounter);
+      window.addEventListener('load', function () {
+        centerSlide(0);
+        updateCounter();
+      });
+      updateCounter();
+
+      /* LIGHTBOX */
+      var lightbox = document.getElementById('lightbox');
+      var lightboxImage = document.getElementById('lightboxImage');
+      var lightboxCounter = document.getElementById('lightboxCounter');
+      var lightboxClose = document.getElementById('lightboxClose');
+      var lightboxPrev = document.getElementById('lightboxPrev');
+      var lightboxNext = document.getElementById('lightboxNext');
+      var currentIndex = 0;
+
+      function showLightbox(index) {
+        currentIndex = (index + slides.length) % slides.length;
+        var imgBox = slides[currentIndex].querySelector('.gallery-slide-img');
+        lightboxImage.innerHTML = imgBox ? imgBox.innerHTML : '';
+        lightboxCounter.textContent = pad(currentIndex + 1) + ' / ' + pad(slides.length);
+      }
+
+      slides.forEach(function (slide, i) {
+        slide.addEventListener('click', function () {
+          showLightbox(i);
+          lightbox.classList.add('open');
+        });
+      });
+      lightboxClose.addEventListener('click', function () { lightbox.classList.remove('open'); });
+      lightbox.addEventListener('click', function (e) { if (e.target === lightbox) lightbox.classList.remove('open'); });
+      lightboxPrev.addEventListener('click', function () { showLightbox(currentIndex - 1); });
+      lightboxNext.addEventListener('click', function () { showLightbox(currentIndex + 1); });
+      document.addEventListener('keydown', function (e) {
+        if (!lightbox.classList.contains('open')) return;
+        if (e.key === 'Escape') lightbox.classList.remove('open');
+        if (e.key === 'ArrowLeft') showLightbox(currentIndex - 1);
+        if (e.key === 'ArrowRight') showLightbox(currentIndex + 1);
+      });
+    })();
+  </script>
+  <!-- ============ JS 3: cuenta atrás en directo hasta la boda ============ -->
+  <script>
+    (function () {
+      // 👇 FECHA DE LA BODA: 5 de junio de 2027, medianoche (00:00).
+      // Si necesitas que cuente hasta la hora exacta de la ceremonia en vez
+      // de medianoche, cambia "T00:00:00" por la hora, ej. "T12:30:00".
+      var target = new Date('2027-06-05T00:00:00');
+      var elDays = document.getElementById('cdDays');
+      var elHours = document.getElementById('cdHours');
+      var elMinutes = document.getElementById('cdMinutes');
+      var elSeconds = document.getElementById('cdSeconds');
+      if (!elDays) return;
+
+      function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+      function tick() {
+        var diff = target - new Date();
+        if (diff < 0) diff = 0;
+        var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        var hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        var minutes = Math.floor((diff / (1000 * 60)) % 60);
+        var seconds = Math.floor((diff / 1000) % 60);
+        elDays.textContent = pad(days);
+        elHours.textContent = pad(hours);
+        elMinutes.textContent = pad(minutes);
+        elSeconds.textContent = pad(seconds);
+      }
+      tick();
+      setInterval(tick, 1000);
+    })();
+  </script>
+
+</body>
+</html>
